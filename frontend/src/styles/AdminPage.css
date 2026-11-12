@@ -1,0 +1,323 @@
+:root { font-family: 'Noto Sans Thai', 'Segoe UI', sans-serif; color: #25243b; background: #f7f7fb; }
+* { box-sizing: border-box; }
+button, input, select, textarea { font: inherit; }
+.kku-admin { min-height: 100vh; background: #f7f7fb; padding: 28px 16px 60px; }
+.kku-shell { max-width: 1050px; margin: auto; }
+.kku-header { display:flex; justify-content:space-between; align-items:center; gap:12px; border-bottom:1px solid #e6e5ee; padding-bottom:18px; }
+.kku-brand { display:flex; align-items:center; gap:12px; }
+.kku-logo { width:44px; height:44px; display:grid; place-items:center; border-radius:12px; background:#54409b; color:white; font-weight:900; font-size:24px; }
+.kku-brand strong { display:block; font-size:16px; }
+.kku-brand small { display:block; color:#77778b; font-size:12px; }
+.kku-admin-pill { padding:5px 12px; border-radius:20px; background:#e5f5eb; color:#217444; font-size:12px; font-weight:700; }
+.kku-page-heading { margin:25px 0 18px; }
+.kku-page-heading h1 { font-size:26px; margin:0 0 4px; }
+.kku-page-heading p { color:#77778b; margin:0; font-size:14px; }
+.kku-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.kku-stat { background:#fff; border:1px solid #e7e5ee; border-radius:14px; padding:18px; }
+.kku-stat span { display:block; font-size:13px; color:#77778b; }
+.kku-stat strong { display:block; font-size:29px; margin-top:4px; }
+.kku-toolbar { display:flex; gap:10px; margin-bottom:16px; }
+.kku-toolbar input { flex:1; min-width:0; }
+.kku-toolbar input, .kku-toolbar select, .kku-card-actions select, .kku-modal input, .kku-modal select, .kku-modal textarea { border:1px solid #dedce9; border-radius:9px; padding:10px 12px; background:#fff; color:#29273c; outline-color:#6c52b3; }
+.kku-issue-list { display:grid; gap:14px; }
+.kku-card { background:white; border:1px solid #e7e5ee; border-radius:16px; padding:18px; box-shadow:0 2px 10px #2c225408; }
+.kku-issue-head { display:flex; align-items:flex-start; gap:16px; }
+.kku-photo { flex:0 0 125px; width:125px; height:125px; background:#f0eff6; border-radius:12px; overflow:hidden; display:grid; place-items:center; color:#8d899c; font-size:12px; text-align:center; }
+.kku-photo img { width:100%; height:100%; object-fit:cover; }
+.kku-issue-info { flex:1; min-width:0; }
+.kku-title-line { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+.kku-title-line small { color:#88849b; }
+.kku-badge { padding:5px 10px; border-radius:20px; background:#e9e9ff; color:#5340a1; font-size:12px; white-space:nowrap; }
+.kku-badge.pending { background:#fff0db; color:#9a6200; }
+.kku-badge.resolved { background:#e4f6e9; color:#277647; }
+.kku-issue-info h3 { margin:9px 0; font-size:17px; }
+.kku-issue-info p { margin:5px 0; font-size:13px; color:#767389; }
+.kku-divider { border-top:1px solid #efedf4; margin:15px 0; }
+.kku-step { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.kku-step-info { min-width:0; }
+.kku-step-line { display:flex; align-items:baseline; flex-wrap:wrap; gap:9px; font-size:14px; }
+.kku-step-line span { color:#77758a; }
+.kku-step-info small, .kku-staff small { display:block; font-size:12px; color:#88869b; margin-top:5px; }
+.kku-staff { text-align:right; font-size:13px; overflow-wrap:anywhere; }
+.kku-destination { display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:14px; }
+.kku-destination span { color:#77758a; }
+.kku-destination strong { text-align:right; }
+.kku-card-actions { display:flex; justify-content:space-between; gap:12px; margin-top:16px; }
+.kku-card-actions select { min-width:160px; max-width:60%; }
+.kku-primary, .kku-secondary { border:0; border-radius:9px; padding:10px 17px; cursor:pointer; font-weight:650; }
+.kku-primary { background:#5945a1; color:white; }
+.kku-primary:hover { background:#49378c; }
+.kku-secondary { background:#f0eff5; color:#3f3b58; }
+.kku-empty { padding:32px; background:white; text-align:center; color:#77758a; border-radius:12px; }
+.kku-demo-note { color:#8a8797; font-size:12px; }
+.kku-overlay { position:fixed; inset:0; z-index:1000; background:#17112599; display:flex; align-items:center; justify-content:center; padding:16px; }
+.kku-modal { width:min(100%,660px); max-height:90vh; overflow:auto; background:white; border-radius:16px; box-shadow:0 20px 65px #130c2b40; }
+.kku-modal-head, .kku-modal-footer { padding:18px 22px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.kku-modal-head { border-bottom:1px solid #eceaf3; }
+.kku-modal-head small { color:#8b879b; }
+.kku-modal-head h2 { margin:4px 0 0; font-size:21px; }
+.kku-close { border:0; background:transparent; cursor:pointer; font-size:28px; color:#69667a; }
+.kku-modal-body { padding:20px 22px; display:grid; gap:16px; }
+.kku-modal-summary { background:#f7f6fb; border-radius:10px; padding:14px; }
+.kku-modal-summary p { font-size:13px; color:#69667b; }
+.kku-modal-summary small { color:#8b879b; }
+
+
+
+.kku-modal label { display:grid; gap:7px; font-size:13px; font-weight:650; }
+.kku-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.kku-modal-history { border:1px solid #eceaf3; border-radius:10px; padding:14px; }
+.kku-modal-history h3 { font-size:15px; margin:0 0 14px; }
+.kku-modal-footer { border-top:1px solid #eceaf3; justify-content:flex-end; }
+@media (max-width:650px) { .kku-stats { grid-template-columns:repeat(2,1fr); } .kku-page-heading h1 { font-size:22px; } .kku-photo { width:95px; height:95px; flex-basis:95px; } .kku-card { padding:14px; } .kku-issue-head { gap:11px; } .kku-issue-info h3 { font-size:15px; } .kku-step { align-items:flex-start; } .kku-step-line { gap:5px; } .kku-staff { max-width:48%; } .kku-toolbar { flex-wrap:wrap; } .kku-toolbar input { flex-basis:100%; } .kku-form-grid { grid-template-columns:1fr; } }
+
+
+/* ========================================
+   ADMIN MODAL — รูปภาพและรายละเอียดเรื่อง
+   ======================================== */
+
+/* กล่องรายละเอียดเรื่องร้องเรียน */
+.kku-modal-summary {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: #f7f6fb;
+  border-radius: 12px;
+}
+
+/* จำกัดขนาดรูปเฉพาะใน Modal */
+.kku-modal-summary img {
+  display: block;
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* ข้อความด้านขวาของรูป */
+.kku-modal-summary > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.kku-modal-summary strong {
+  display: block;
+  font-size: 16px;
+  color: #25243b;
+}
+
+.kku-modal-summary p {
+  margin: 5px 0;
+  font-size: 13px;
+  color: #69667b;
+  overflow-wrap: anywhere;
+}
+
+.kku-modal-summary small {
+  display: block;
+  font-size: 12px;
+  color: #8b879b;
+}
+
+/* รองรับมือถือ */
+@media (max-width: 600px) {
+  .kku-modal-summary {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .kku-modal-summary img {
+    width: 75px;
+    height: 75px;
+    min-width: 75px;
+    max-width: 75px;
+    max-height: 75px;
+  }
+
+  .kku-modal-summary strong {
+    font-size: 14px;
+  }
+
+  .kku-modal-summary p,
+  .kku-modal-summary small {
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================
+   ADMIN MODAL — รูปภาพประกอบเรื่องร้องเรียน
+   ========================================= */
+
+.kku-modal-summary-with-image {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: #f7f6fb;
+  border-radius: 12px;
+}
+
+.kku-modal-photo-link {
+  display: block;
+  flex: 0 0 100px;
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eeedf5;
+}
+
+.kku-modal-photo {
+  display: block;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.kku-modal-summary-copy {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.kku-modal-summary-copy strong {
+  display: block;
+  font-size: 16px;
+  color: #25243b;
+}
+
+.kku-modal-summary-copy p {
+  margin: 5px 0;
+  font-size: 13px;
+  color: #69667b;
+}
+
+.kku-modal-summary-copy small {
+  display: block;
+  font-size: 12px;
+  color: #8b879b;
+}
+
+/* =========================================
+   สถานะหน่วยงานปลายทาง — อ่านอย่างเดียว
+   ========================================= */
+
+.kku-status-readonly {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+
+  background-color: #f0edf8;
+  color: #5945a1;
+
+  border: 1px solid #e4def2;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+  cursor: default;
+  user-select: none;
+}
+
+/* ซ่อนกุญแจที่อาจหลงเหลือ */
+.kku-status-lock {
+  display: none;
+}
+
+/* =========================================
+   รองรับหน้าจอมือถือ
+   ========================================= */
+
+@media (max-width: 600px) {
+  .kku-modal-summary-with-image {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .kku-modal-photo-link {
+    flex-basis: 75px;
+    width: 75px;
+    height: 75px;
+  }
+
+  .kku-modal-photo {
+    width: 75px;
+    height: 75px;
+  }
+
+  .kku-modal-summary-copy strong {
+    font-size: 14px;
+  }
+
+  .kku-modal-summary-copy p,
+  .kku-modal-summary-copy small {
+    font-size: 12px;
+  }
+}
+
+/* Staff management */
+.kku-admin-tabs { display:flex; gap:8px; margin:20px 0; flex-wrap:wrap; }
+.kku-admin-tabs button { border:1px solid #e4def2; background:white; color:#5945a1; border-radius:10px; padding:10px 16px; font-weight:650; cursor:pointer; }
+.kku-admin-tabs button.active { background:#5945a1; color:white; }
+.kku-staff-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
+.kku-staff-panel { background:white; border:1px solid #e7e5ee; border-radius:16px; padding:20px; display:grid; gap:14px; align-content:start; }
+.kku-staff-panel h2 { font-size:18px; margin:0; }
+.kku-staff-panel label { display:grid; gap:6px; font-size:13px; font-weight:650; }
+.kku-staff-panel input,.kku-staff-panel select { width:100%; min-width:0; border:1px solid #dedce9; border-radius:9px; padding:10px 12px; background:#fff; }
+.kku-staff-list-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.kku-staff-list { display:grid; gap:10px; }
+.kku-staff-person { border:1px solid #eeecf4; border-radius:10px; padding:12px; display:grid; gap:3px; overflow-wrap:anywhere; }
+.kku-staff-person span { color:#5945a1; font-size:13px; }
+.kku-staff-person small { color:#77758a; }
+.kku-staff-error { color:#b42318; margin:0; }
+.kku-staff-success { color:#217444; margin:0; }
+@media(max-width:700px) { .kku-staff-layout { grid-template-columns:1fr; } }
+
+/* Profile and staff editing */
+.kku-avatar{display:inline-flex;align-items:center;justify-content:center;flex:0 0 42px;width:42px;height:42px;border-radius:50%;background:#e9e4f8;color:#5945a1;font-weight:800;overflow:hidden;font-size:18px}
+.kku-avatar.large{width:86px;height:86px;flex-basis:86px;font-size:34px}
+.kku-avatar img{width:100%;height:100%;object-fit:cover}
+.kku-profile-page{display:grid;gap:16px}
+.kku-profile-panel,.kku-profile-form{background:white;border:1px solid #e7e5ee;border-radius:14px;padding:22px;display:grid;gap:15px}
+.kku-profile-panel h2{font-size:18px;margin:0}
+.kku-profile-panel label,.kku-profile-form label{display:grid;gap:7px;font-size:13px;font-weight:650}
+.kku-profile-panel input,.kku-profile-form input,.kku-profile-form select{border:1px solid #dedce9;border-radius:9px;padding:10px 12px;width:100%;background:white;color:#29273c}
+.kku-profile-panel input:disabled{background:#f5f4f8}
+.kku-profile-heading{display:flex;align-items:center;gap:16px}
+.kku-profile-heading h2,.kku-profile-heading p{margin:0 0 5px}
+.kku-profile-heading p,.kku-profile-heading small{color:#77758a}
+.kku-profile-columns{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.kku-avatar-upload{max-width:440px}
+.kku-profile-actions{display:flex;justify-content:flex-end;gap:10px}
+.kku-profile-form{border:0}
+.kku-profile-form .kku-check{display:flex;align-items:center;gap:10px}
+.kku-profile-form .kku-check input{width:18px;height:18px}
+.kku-staff-person .kku-avatar{margin-right:8px}
+@media(max-width:650px){.kku-profile-columns{grid-template-columns:1fr}.kku-profile-panel,.kku-profile-form{padding:16px}}
+
+/* Profile edit pencil and current signed-in user */
+.kku-avatar-edit-wrap{position:relative;display:inline-flex;flex:0 0 auto}
+.kku-avatar-pencil{position:absolute;right:-4px;bottom:-3px;width:32px;height:32px;display:grid!important;place-items:center;cursor:pointer;background:#5945a1;color:#fff;border:3px solid white;border-radius:50%;box-shadow:0 2px 7px #20143c33}
+.kku-avatar-pencil:hover{background:#49378c}
+.kku-avatar-pencil:focus-within{outline:2px solid #5945a1;outline-offset:2px}
+.kku-avatar-pencil input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.kku-avatar-hint{font-size:12px;color:#77758a;margin:10px 0 0}
+.kku-header-account{display:flex;align-items:center;gap:10px;min-width:0;max-width:45%;border:1px solid #e7e5ee;border-radius:14px;background:white;padding:7px 12px;cursor:pointer;text-align:left;color:#25243b}
+.kku-header-account:hover{border-color:#a99ad2;background:#faf9ff}
+.kku-header-account-text{min-width:0;display:block}
+.kku-header-account-text strong,.kku-header-account-text small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kku-header-account-text strong{font-size:13px}
+.kku-header-account-text small{font-size:11px;color:#77758a}
+@media(max-width:600px){.kku-header-account{max-width:52%;padding:6px}.kku-header-account-text small:nth-of-type(1){display:none}.kku-header-account .kku-avatar{width:34px;height:34px;flex-basis:34px}}

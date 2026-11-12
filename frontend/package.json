@@ -1,0 +1,1 @@
+{"name":"kku-campus-voice-web","private":true,"type":"module","scripts":{"dev":"vite --host 127.0.0.1","build":"vite build","preview":"vite preview"},"dependencies":{"vite":"^6.0.5","react":"^18.3.1","react-dom":"^18.3.1","react-router-dom":"^6.28.0","leaflet":"^1.9.4","react-leaflet":"^4.2.1","lucide-react":"^0.468.0"},"devDependencies":{}}

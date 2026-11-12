@@ -1,0 +1,47 @@
+/* ===== 06. CTA & footer ===== */
+.cta {
+  margin-top: 40px;
+  margin-bottom: 55px;
+  background: linear-gradient(105deg,var(--primary-800),var(--primary-500));
+  border-radius: 19px;
+  padding: 35px 45px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  gap: 20px;
+}
+
+.cta h2 {
+  margin: 0 0 8px;
+  font-size: 25px;
+}
+
+.cta p {
+  margin: 0;
+  font-size: 13px;
+  color: #fff;
+}
+
+footer {
+  background: #24213f;
+  color: #fff;
+  margin-top: 50px;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 32px 0;
+}
+
+.footer-inner strong {
+  font-size: 15px;
+}
+
+.footer-inner p,.footer-inner>span {
+  font-size: 11px;
+  color: #aaa7c5;
+}
+

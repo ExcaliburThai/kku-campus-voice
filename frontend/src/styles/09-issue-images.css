@@ -1,0 +1,41 @@
+/* ===== 09. Issue images & uploads ===== */
+.issue-photo {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 11px;
+  margin-bottom: 13px;
+}
+
+.issue-confirm {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.issue-confirm .btn {
+  padding: 8px 10px;
+  font-size: 11px;
+}
+
+.issue-confirm small {
+  font-size: 11px;
+  color: #7063a5;
+  white-space: nowrap;
+}
+
+.upload-preview {
+  max-width: 100%;
+  max-height: 230px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.field input[type=file] {
+  max-width: 100%;
+}
+

@@ -1,0 +1,126 @@
+/* ===== 03. Hero (orange gradient) ===== */
+.hero {
+  margin: auto;
+  padding-bottom: 30px;
+  /*width: min(1280px, calc(100% - 40px));*/
+  max-width: 1920px;
+  /*background: linear-gradient(to top, rgba(255, 106, 19, 0.02) 0%, rgba(0, 0, 0, 0) 10%);*/
+
+
+      background: radial-gradient(ellipse 50% 15% at 50% 110%, rgba(255, 106, 19, 0.1) 0%, transparent 120%);
+  color: white;
+  overflow: hidden;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.25fr .75fr;
+  min-height: 415px;
+  align-items: center;
+}
+
+.hero h1 {
+  color: #ff6a13;
+  text-shadow: 1px 1px 10px rgba(255, 255, 255, 0.8);
+  font-size: clamp(29px,3.7vw,48px);
+  line-height: 1.45;
+  margin: 10px 0 15px;
+  font-weight: 800;
+}
+
+.hero h1 em {
+  font-style: normal;
+  color: #002b49;
+}
+
+.hero p {
+  max-width: 590px;
+  color: #002b49;
+  font-size: 14px;
+  line-height: 2;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #002b49;
+}
+
+.eyebrow.dark {
+  color: var(--primary);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.btn.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn.primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn.light {
+  background: white;
+      color: var(--primary);
+}
+
+.btn.outline {
+  background: white;
+  color: #5d54a0;
+  border: 1px solid #d7d7e7;
+}
+
+.hero-note {
+  margin-top: 23px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #002b49;
+  font-size: 11px;
+}
+
+.hero-graphic {
+  height: 100%;
+  min-height: 330px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+
+.floating-card {
+  position: absolute;
+  bottom: 65px;
+  left: 20px;
+  background: white;
+  color: #2e3655;
+  padding: 13px 17px;
+  border-radius: 12px;
+  font-size: 12px;
+  box-shadow: 0 15px 40px #1c174b40;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+

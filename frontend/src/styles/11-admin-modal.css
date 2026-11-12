@@ -1,0 +1,80 @@
+/* ===== 11. Admin modal ===== */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.admin-modal {
+  background: #fff;
+  color: #1e293b;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.admin-modal h2 {
+  margin: 0 0 8px;
+  font-size: 21px;
+}
+
+.admin-modal p {
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.admin-modal label {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 16px 0 8px;
+}
+
+.admin-modal select,
+.admin-modal input,
+.admin-modal textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: white;
+  color: #1e293b;
+  font: inherit;
+}
+
+.admin-modal select:focus,
+.admin-modal input:focus,
+.admin-modal textarea:focus {
+  outline: 2px solid #a78bfa;
+  outline-offset: 1px;
+}
+
+.admin-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+@media (max-width: 480px) {
+  .admin-modal {
+    padding: 18px;
+  }
+
+  .admin-modal-actions {
+    flex-wrap: wrap;
+  }
+}
+

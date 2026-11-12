@@ -1,0 +1,106 @@
+.admin-login-page {
+  min-height: calc(100vh - 78px);
+  display: grid;
+  place-items: center;
+  padding: 36px 16px;
+  background: #f6f8fa;
+  color: #1b1f24;
+}
+.admin-login-card {
+  width: min(100%, 420px);
+  background: white;
+  border: 1px solid #e2e6ea;
+  border-radius: 18px;
+  padding: 36px;
+  box-shadow: 0 12px 36px #1b1f2414;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.admin-login-mark {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #ff6a13;
+  color: white;
+  font-size: 30px;
+  font-weight: 700;
+}
+.admin-login-card h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 8px 0 0;
+}
+.admin-login-card p {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+.admin-login-card label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.admin-login-card input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font: inherit;
+  outline-color: #ff6a13;
+}
+.admin-login-card button {
+  margin-top: 10px;
+  background: #ff6a13;
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  padding: 13px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.admin-login-card button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+.admin-login-error {
+  background: #fff0ee;
+  color: #b42318;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+.admin-auth-loading {
+  text-align: center;
+  padding: 80px 16px;
+  color: #64748b;
+}
+.admin-auth-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  background: #f0edf8;
+  font-size: 12px;
+  color: #5945a1;
+}
+.admin-auth-toolbar button {
+  border: 1px solid #5945a1;
+  background: white;
+  color: #5945a1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+@media (max-width: 480px) {
+  .admin-login-card {
+    padding: 24px;
+  }
+  .admin-auth-toolbar {
+    padding: 10px;
+  }
+}
