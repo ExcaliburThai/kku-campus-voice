@@ -28,6 +28,16 @@ import { z } from 'zod';
 
 const app=express();
 
+// Render forwards requests through a trusted reverse proxy.
+app.set('trust proxy', 1);
+
+// Friendly root endpoint. Database connectivity is checked separately at /api/health.
+app.get('/', (req, res) => res.json({
+  ok: true,
+  message: 'KKU Campus Voice API is running',
+  health: '/api/health'
+}));
+
 const uploadsDir=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../uploads');
 
 fs.mkdirSync(uploadsDir,{recursive:true});
@@ -48,7 +58,9 @@ const rawPool=mysql.createPool({
 
  waitForConnections:true,connectionLimit:10,decimalNumbers:true,
 
- timezone:'+07:00'
+ timezone:'+07:00',
+ // TiDB Cloud public endpoints require encrypted connections.
+ ssl: process.env.MYSQL_SSL === 'false' ? undefined : { minVersion: 'TLSv1.2', rejectUnauthorized: true }
 
 });
 
@@ -135,7 +147,6 @@ const publicFields=`i.id,i.tracking_code,i.title,i.description,i.status,i.latitu
 const joins='FROM issues i JOIN categories c ON c.id=i.category_id LEFT JOIN locations l ON l.id=i.location_id';
 
 const fail=(res,e)=>{
-  console.error('API ERROR:', e);
   console.error('[API ERROR]', {code:e?.code, errno:e?.errno, sqlMessage:e?.sqlMessage, message:e?.message});
   res.status(500).json({error:'เกิดข้อผิดพลาดของเซิร์ฟเวอร์'});
 };
@@ -373,7 +384,7 @@ app.patch('/api/admin/me',requireAdmin,loadStaff,async(req,res)=>{
 });
 app.patch('/api/admin/me/password',requireAdmin,loadStaff,async(req,res)=>{
  try {
-  const parsed=z.object({currentPassword:z.string().min(1),newPassword:z.string().min(6).max(128)}).safeParse(req.body);
+  const parsed=z.object({currentPassword:z.string().min(1),newPassword:z.string().min(12).max(128)}).safeParse(req.body);
   if(!parsed.success)return res.status(400).json({error:'รหัสผ่านใหม่ต้องมีอย่างน้อย 12 ตัวอักษร'});
   const user=(await pool.query('SELECT password_hash FROM staff_users WHERE id=$1',[req.staff.id])).rows[0];
   if(!user||!await bcrypt.compare(parsed.data.currentPassword,user.password_hash))return res.status(400).json({error:'รหัสผ่านปัจจุบันไม่ถูกต้อง'});
@@ -404,7 +415,7 @@ app.post('/api/admin/me/avatar',requireAdmin,loadStaff,avatarUpload.single('avat
 // Only admins can edit another account. Never allow removing the last active admin.
 app.patch('/api/admin/staff/:id',requireAdmin,loadStaff,requireSuperAdmin,async(req,res)=>{
  const id=parseId(req.params.id);
- const parsed=z.object({fullName:z.string().trim().min(2).max(120),email:z.string().trim().email().max(190),department:z.string().trim().max(160),role:z.enum(['admin','staff']),isActive:z.boolean(),newPassword:z.union([z.literal(''),z.string().min(6).max(128)]).optional()}).safeParse(req.body);
+ const parsed=z.object({fullName:z.string().trim().min(2).max(120),email:z.string().trim().email().max(190),department:z.string().trim().max(160),role:z.enum(['admin','staff']),isActive:z.boolean(),newPassword:z.union([z.literal(''),z.string().min(12).max(128)]).optional()}).safeParse(req.body);
  if(!id||!parsed.success)return res.status(400).json({error:'ข้อมูลเจ้าหน้าที่ไม่ถูกต้อง'});
  const v=parsed.data,conn=await pool.connect();
  try{
@@ -428,7 +439,7 @@ app.get('/api/admin/staff',requireAdmin,loadStaff,async(req,res)=>{try{res.json(
 
 app.post('/api/admin/staff',requireAdmin,loadStaff,requireSuperAdmin,async(req,res)=>{try{
 
- const v=z.object({fullName:z.string().trim().min(2).max(120),email:z.string().email().max(190),password:z.string().min(6).max(128),department:z.string().max(160).optional(),role:z.enum(['admin','staff'])}).safeParse(req.body);
+ const v=z.object({fullName:z.string().trim().min(2).max(120),email:z.string().email().max(190),password:z.string().min(12).max(128),department:z.string().max(160).optional(),role:z.enum(['admin','staff'])}).safeParse(req.body);
 
  if(!v.success)return res.status(400).json({error:'ข้อมูลเจ้าหน้าที่ไม่ถูกต้อง'});
 
