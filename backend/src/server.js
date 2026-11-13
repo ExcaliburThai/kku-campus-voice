@@ -17,6 +17,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
 
 import path from 'node:path';
 
@@ -42,7 +43,42 @@ const uploadsDir=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../u
 
 fs.mkdirSync(uploadsDir,{recursive:true});
 
-const upload=multer({storage:multer.diskStorage({destination:uploadsDir,filename:(req,file,cb)=>cb(null,crypto.randomUUID()+({ 'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp'}[file.mimetype]||'.bin'))}),limits:{fileSize:5*1024*1024,files:1},fileFilter:(req,file,cb)=>cb(null,['image/jpeg','image/png','image/webp'].includes(file.mimetype))});
+// Keep uploads in memory: Render's local filesystem is not persistent.
+const allowedImages=['image/jpeg','image/png','image/webp'];
+const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:5*1024*1024,files:1},fileFilter:(req,file,cb)=>cb(null,allowedImages.includes(file.mimetype))});
+
+cloudinary.config({
+ cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
+ api_key:process.env.CLOUDINARY_API_KEY,
+ api_secret:process.env.CLOUDINARY_API_SECRET,
+ secure:true
+});
+const cloudFolder='kku-campus-voice-sc69';
+function validImage(buf,mime){
+ if(!buf)return false;
+ return (mime==='image/jpeg'&&buf[0]===255&&buf[1]===216&&buf[2]===255)||
+  (mime==='image/png'&&buf.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex')))||
+  (mime==='image/webp'&&buf.toString('ascii',0,4)==='RIFF'&&buf.toString('ascii',8,12)==='WEBP');
+}
+function cloudUpload(buf,kind){
+ if(!process.env.CLOUDINARY_CLOUD_NAME||!process.env.CLOUDINARY_API_KEY||!process.env.CLOUDINARY_API_SECRET)
+  throw Error('Cloudinary credentials are missing');
+ const publicId=`${cloudFolder}/${kind}/${crypto.randomUUID()}`;
+ return new Promise((resolve,reject)=>{
+  const stream=cloudinary.uploader.upload_stream({public_id:publicId,resource_type:'image',overwrite:false},(err,result)=>err?reject(err):resolve(result));
+  stream.end(buf);
+ });
+}
+function cloudPath(result){return '/uploads/cloudinary/'+result.public_id;}
+function cloudIdFromPath(value){
+ const prefix='/uploads/cloudinary/';
+ if(typeof value!=='string'||!value.startsWith(prefix))return null;
+ const id=value.slice(prefix.length);
+ return /^kku-campus-voice-sc69\/(issues|progress|avatars)\/[0-9a-f-]{36}$/.test(id)?id:null;
+}
+async function removeCloudImage(publicId){
+ try{await cloudinary.uploader.destroy(publicId,{resource_type:'image'});}catch(e){console.warn('Cloudinary cleanup failed:',e.message);}
+}
 
 const rawPool=mysql.createPool({
 
@@ -132,6 +168,13 @@ app.use(cors({origin:(process.env.FRONTEND_ORIGIN||'http://localhost:5173').spli
 
 app.use(express.json({limit:'30kb'}));
 
+// Preserve existing frontend /uploads/... URL convention; redirect to Cloudinary CDN.
+app.get('/uploads/cloudinary/:project/:kind/:imageId',(req,res)=>{
+ const {project,kind,imageId}=req.params;
+ const id=`${project}/${kind}/${imageId}`;
+ if(!cloudIdFromPath('/uploads/cloudinary/'+id))return res.sendStatus(404);
+ res.redirect(302,cloudinary.url(id,{resource_type:'image',secure:true}));
+});
 app.use('/uploads',express.static(uploadsDir,{dotfiles:'deny',setHeaders:(res)=>res.setHeader('X-Content-Type-Options','nosniff')}));
 
 const limiter=rateLimit({windowMs:15*60*1000,limit:100,standardHeaders:'draft-7',legacyHeaders:false});
@@ -277,37 +320,22 @@ app.post('/api/issues',submitLimiter,async(req,res)=>{
 
 });
 
-app.post('/api/issues/:id/image',upload.single('image'),async(req,res)=>{try{
-
- const id=parseId(req.params.id),token=String(req.body?.token||'');
-
- if(!id||!req.file||!token){if(req.file)fs.unlinkSync(req.file.path);return res.status(400).json({error:'กรุณาเลือกรูปและระบุรหัสติดตาม'});}
-
- const hash=crypto.createHash('sha256').update(token).digest('hex');
-
- const result=await pool.query('SELECT private_token_hash,image_path FROM issues WHERE id=$1',[id]);
-
- const issue=result.rows[0];
-
- if(!issue||issue.image_path||issue.private_token_hash!==hash){fs.unlinkSync(req.file.path);return res.status(403).json({error:'ไม่อนุญาตให้อัปโหลด หรือเรื่องนี้มีรูปแล้ว'});}
-
- // ตรวจ magic bytes เพื่อป้องกันไฟล์ปลอมประเภท
-
- const header=fs.readFileSync(req.file.path).subarray(0,12);
-
- const valid=(req.file.mimetype==='image/jpeg'&&header[0]===255&&header[1]===216&&header[2]===255)||(req.file.mimetype==='image/png'&&header.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex')))||(req.file.mimetype==='image/webp'&&header.toString('ascii',0,4)==='RIFF'&&header.toString('ascii',8,12)==='WEBP');
-
- if(!valid){fs.unlinkSync(req.file.path);return res.status(400).json({error:'ไฟล์ไม่ใช่รูปภาพที่รองรับ'});}
-
- const imagePath='/uploads/'+req.file.filename;
-
- const saved=await pool.query('UPDATE issues SET image_path=$1 WHERE id=$2 AND image_path IS NULL',[imagePath,id]);
-
- if(!saved.rowCount){fs.unlinkSync(req.file.path);return res.status(409).json({error:'เรื่องนี้มีรูปแล้ว'});}
-
- res.json({image_path:imagePath});
-
- }catch(e){if(req.file&&fs.existsSync(req.file.path))fs.unlinkSync(req.file.path);fail(res,e);}});
+app.post('/api/issues/:id/image',upload.single('image'),async(req,res)=>{
+ let uploaded=null;
+ try{
+  const id=parseId(req.params.id),token=String(req.body?.token||'');
+  if(!id||!req.file||!token)return res.status(400).json({error:'กรุณาเลือกรูปและระบุรหัสติดตาม'});
+  const hash=crypto.createHash('sha256').update(token).digest('hex');
+  const issue=(await pool.query('SELECT private_token_hash,image_path FROM issues WHERE id=$1',[id])).rows[0];
+  if(!issue||issue.image_path||issue.private_token_hash!==hash)return res.status(403).json({error:'ไม่อนุญาตให้อัปโหลด หรือเรื่องนี้มีรูปแล้ว'});
+  if(!validImage(req.file.buffer,req.file.mimetype))return res.status(400).json({error:'ไฟล์ไม่ใช่รูปภาพที่รองรับ'});
+  uploaded=await cloudUpload(req.file.buffer,'issues');
+  const imagePath=cloudPath(uploaded);
+  const saved=await pool.query('UPDATE issues SET image_path=$1 WHERE id=$2 AND image_path IS NULL',[imagePath,id]);
+  if(!saved.rowCount){await removeCloudImage(uploaded.public_id);return res.status(409).json({error:'เรื่องนี้มีรูปแล้ว'});}
+  res.json({image_path:imagePath});
+ }catch(e){if(uploaded)await removeCloudImage(uploaded.public_id);fail(res,e);}
+});
 
 app.post('/api/public/issues/:id/confirm',async(req,res)=>{try{
 
@@ -394,24 +422,21 @@ app.patch('/api/admin/me/password',requireAdmin,loadStaff,async(req,res)=>{
 });
 const avatarUpload=multer({storage:multer.memoryStorage(),limits:{fileSize:2*1024*1024,files:1},fileFilter:(req,file,cb)=>cb(null,['image/jpeg','image/png','image/webp'].includes(file.mimetype))});
 app.post('/api/admin/me/avatar',requireAdmin,loadStaff,avatarUpload.single('avatar'),async(req,res)=>{
+ let uploaded=null;
  try{
   if(!req.file)return res.status(400).json({error:'กรุณาเลือกรูป JPG PNG หรือ WEBP ขนาดไม่เกิน 2 MB'});
-  const buf=req.file.buffer;
-  const ok=(req.file.mimetype==='image/jpeg'&&buf[0]===255&&buf[1]===216&&buf[2]===255)||
-    (req.file.mimetype==='image/png'&&buf.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex')))||
-    (req.file.mimetype==='image/webp'&&buf.toString('ascii',0,4)==='RIFF'&&buf.toString('ascii',8,12)==='WEBP');
-  if(!ok)return res.status(400).json({error:'ไฟล์รูปภาพไม่ถูกต้อง'});
-  const ext={'image/jpeg':'.jpg','image/png':'.png','image/webp':'.webp'}[req.file.mimetype];
-  const filename='avatar-'+crypto.randomUUID()+ext;
-  const newPath='/uploads/'+filename;
-  fs.writeFileSync(path.join(uploadsDir,filename),buf);
-  try {await pool.query('UPDATE staff_users SET avatar_path=$1 WHERE id=$2',[newPath,req.staff.id]);}
-  catch(e){fs.unlinkSync(path.join(uploadsDir,filename));throw e;}
+  if(!validImage(req.file.buffer,req.file.mimetype))return res.status(400).json({error:'ไฟล์รูปภาพไม่ถูกต้อง'});
+  uploaded=await cloudUpload(req.file.buffer,'avatars');
+  const newPath=cloudPath(uploaded);
+  await pool.query('UPDATE staff_users SET avatar_path=$1 WHERE id=$2',[newPath,req.staff.id]);
   const old=req.staff.avatar_path;
-  if(old&&/^\/uploads\/avatar-[a-f0-9-]+\.(jpg|png|webp)$/.test(old))fs.promises.unlink(path.join(uploadsDir,path.basename(old))).catch(()=>{});
+  const oldCloudId=cloudIdFromPath(old);
+  if(oldCloudId)removeCloudImage(oldCloudId);
+  else if(old&&/^\/uploads\/avatar-[a-f0-9-]+\.(jpg|png|webp)$/.test(old))fs.promises.unlink(path.join(uploadsDir,path.basename(old))).catch(()=>{});
   res.json({avatar_path:newPath});
- }catch(e){fail(res,e)}
+ }catch(e){if(uploaded)await removeCloudImage(uploaded.public_id);fail(res,e);}
 });
+
 // Only admins can edit another account. Never allow removing the last active admin.
 app.patch('/api/admin/staff/:id',requireAdmin,loadStaff,requireSuperAdmin,async(req,res)=>{
  const id=parseId(req.params.id);
@@ -642,19 +667,20 @@ app.get('/api/admin/issues/:id/history',requireAdmin,loadStaff,async(req,res)=>{
 
  }catch(e){fail(res,e)}});
 
-app.post('/api/admin/issues/:id/progress-image',requireAdmin,loadStaff,upload.single('image'),async(req,res)=>{try{
-
- const id=parseId(req.params.id);if(!id||!req.file)return res.status(400).json({error:'กรุณาเลือกรูปภาพที่ถูกต้อง'});
-
- const issue=(await pool.query('SELECT status FROM issues WHERE id=$1',[id])).rows[0];if(!issue)return res.status(404).json({error:'ไม่พบเรื่อง'});
-
- const imagePath='/uploads/'+req.file.filename;
-
- await pool.query('INSERT INTO issue_history(issue_id,status,note,actor_staff_id,image_path) VALUES($1,$2,$3,$4,$5)',[id,issue.status,'แนบรูปภาพความคืบหน้า',req.staff.id,imagePath]);
-
- res.status(201).json({image_path:imagePath});
-
- }catch(e){fail(res,e)}});
+app.post('/api/admin/issues/:id/progress-image',requireAdmin,loadStaff,upload.single('image'),async(req,res)=>{
+ let uploaded=null;
+ try{
+  const id=parseId(req.params.id);
+  if(!id||!req.file)return res.status(400).json({error:'กรุณาเลือกรูปภาพที่ถูกต้อง'});
+  const issue=(await pool.query('SELECT status FROM issues WHERE id=$1',[id])).rows[0];
+  if(!issue)return res.status(404).json({error:'ไม่พบเรื่อง'});
+  if(!validImage(req.file.buffer,req.file.mimetype))return res.status(400).json({error:'ไฟล์ไม่ใช่รูปภาพที่รองรับ'});
+  uploaded=await cloudUpload(req.file.buffer,'progress');
+  const imagePath=cloudPath(uploaded);
+  await pool.query('INSERT INTO issue_history(issue_id,status,note,actor_staff_id,image_path) VALUES($1,$2,$3,$4,$5)',[id,issue.status,'แนบรูปภาพความคืบหน้า',req.staff.id,imagePath]);
+  res.status(201).json({image_path:imagePath});
+ }catch(e){if(uploaded)await removeCloudImage(uploaded.public_id);fail(res,e);}
+});
 
 async function bootstrapAdmin(){
 
